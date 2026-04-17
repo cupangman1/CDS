@@ -1,0 +1,313 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>롤 팀 랜덤 분배기</title>
+
+<style>
+:root { --result-font: 16px; }
+
+body { font-family: Arial; background:#f5f6fa; padding:20px; }
+.container { max-width:900px; margin:auto; }
+
+.card {
+  background:white;
+  padding:20px;
+  margin-bottom:20px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+table { width:100%; border-collapse:collapse; }
+th, td { border:1px solid #ddd; padding:8px; text-align:center; }
+th { background:#eee; }
+
+.absent-table td { font-size:18px; }
+.absent-table input { transform:scale(1.5); }
+
+button {
+  padding:10px 16px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  margin-right:10px;
+}
+
+.generate { background:#4CAF50; color:white; }
+.reset { background:#e74c3c; color:white; }
+.mapping { background:#3498db; color:white; }
+
+.team-box { display:flex; gap:15px; }
+
+.team { flex:1; padding:10px; border-radius:10px; }
+.team.on { background:#e3f2fd; }
+.team.off { background:#fdecea; }
+
+.player {
+  display:inline-block;
+  background:#ddd;
+  padding:5px 8px;
+  margin:4px;
+  border-radius:8px;
+  font-size: var(--result-font);
+}
+
+.exempt-box {
+  margin-top:10px;
+  padding:10px;
+  background:#f9f9f9;
+  border-radius:10px;
+  font-size: var(--result-font);
+}
+
+textarea { width:100%; height:80px; }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="card">
+<h3>결석자 선택</h3>
+<table class="absent-table" id="playerTable"></table>
+
+<br>
+
+<div>
+결과 글자 크기:
+<input type="range" min="12" max="30" value="16" oninput="changeFont(this.value)">
+<span id="fontVal">16</span>px
+</div>
+
+<br>
+
+<button class="generate" onclick="generate()">생성</button>
+<button class="reset" onclick="resetAll()">초기화</button>
+<button class="mapping" onclick="toggleMapping()">게임매핑 수정</button>
+
+</div>
+
+<!-- 매핑 UI -->
+<div id="mappingBox" class="card" style="display:none;">
+<h3>게임 매핑 수정</h3>
+
+총 인원 (예: 555)
+<input type="text" id="mapKey"><br><br>
+
+팀 구성 입력 (줄마다 입력)
+<textarea id="mapValue" placeholder="예:
+122
+212
+221"></textarea>
+
+<br><br>
+<button onclick="saveMapping()">저장</button>
+
+<hr>
+<h4>현재 매핑</h4>
+<div id="mappingList"></div>
+</div>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+// =========================
+// 초기 데이터
+// =========================
+const INITIAL_TIERS = {
+  1: ["준식","세준","형욱","재현","수현"],
+  2: ["경식","종화","서영","중서","민우"],
+  3: ["동훈","찬규","정섭","덕명","요성"]
+};
+
+// 기본 매핑
+let GAME_MAPPING = JSON.parse(localStorage.getItem("GAME_MAPPING")) || {
+  "5,5,5": [[1,2,2],[2,1,2],[2,2,1]]
+};
+
+// =========================
+// UI
+// =========================
+function buildTable(){
+  let html="<tr><th>이름</th><th>티어</th><th>제외</th></tr>";
+  for(let t in INITIAL_TIERS){
+    INITIAL_TIERS[t].forEach(name=>{
+      html+=`<tr>
+      <td>${name}</td>
+      <td>${t}</td>
+      <td><input type="checkbox" value="${name}"></td>
+      </tr>`;
+    });
+  }
+  document.getElementById("playerTable").innerHTML=html;
+}
+buildTable();
+
+function changeFont(size){
+  document.documentElement.style.setProperty('--result-font', size+'px');
+  document.getElementById("fontVal").innerText=size;
+}
+
+// =========================
+// 매핑 UI
+// =========================
+function toggleMapping(){
+  let box=document.getElementById("mappingBox");
+  box.style.display = box.style.display==="none" ? "block":"none";
+  renderMapping();
+}
+
+function saveMapping(){
+  let key = document.getElementById("mapKey").value.trim();
+  let values = document.getElementById("mapValue").value.trim().split("\n");
+
+  if(key.length !== 3){
+    alert("555 형태로 입력");
+    return;
+  }
+
+  let formattedKey = key.split("").join(",");
+  let arr = values.map(v => v.trim().split("").map(Number));
+
+  GAME_MAPPING[formattedKey] = arr;
+  localStorage.setItem("GAME_MAPPING", JSON.stringify(GAME_MAPPING));
+
+  renderMapping();
+}
+
+function renderMapping(){
+  let html="";
+  for(let k in GAME_MAPPING){
+    html += `<div>${k} → ${GAME_MAPPING[k].map(v=>v.join("")).join(" / ")}</div>`;
+  }
+  document.getElementById("mappingList").innerHTML = html;
+}
+
+// =========================
+// 🔥 자동 매핑 생성
+// =========================
+function autoGenerateMapping(parts){
+  let t1 = parts[1].length;
+  let t2 = parts[2].length;
+  let t3 = parts[3].length;
+
+  let tiers = [t1,t2,t3];
+
+  // 2명 포함
+  if(tiers.includes(2)){
+    return [
+      [2,2,1],
+      [2,2,1],
+      [2,2,1]
+    ];
+  }
+
+  // 3명 포함
+  if(tiers.includes(3)){
+    return [
+      tiers.map(t => t >= 4 ? 2 : 1),
+      tiers.map(t => t >= 4 ? 2 : 1),
+      tiers.map(t => t >= 4 ? 2 : 1)
+    ];
+  }
+
+  // 기본 균등
+  return [
+    [1,2,2],
+    [2,1,2],
+    [2,2,1]
+  ];
+}
+
+// =========================
+// 로직
+// =========================
+function shuffle(arr){
+  return arr.sort(()=>Math.random()-0.5);
+}
+
+function pickExempt(players, needed, used){
+  let cnt = players.length - needed;
+  if(cnt<=0) return [];
+
+  let pool = shuffle([...players]);
+  let never = pool.filter(p=>!used.has(p));
+
+  if(never.length>=cnt) return shuffle(never).slice(0,cnt);
+
+  let chosen=[...never];
+  let remain = pool.filter(p=>!chosen.includes(p));
+  return chosen.concat(shuffle(remain).slice(0,cnt-chosen.length));
+}
+
+function generate(){
+  let absent=new Set();
+  document.querySelectorAll("input[type=checkbox]").forEach(c=>{
+    if(c.checked) absent.add(c.value);
+  });
+
+  let parts={1:[],2:[],3:[]};
+
+  for(let t in INITIAL_TIERS){
+    INITIAL_TIERS[t].forEach(p=>{
+      if(!absent.has(p)) parts[t].push(p);
+    });
+  }
+
+  let key=`${parts[1].length},${parts[2].length},${parts[3].length}`;
+
+  // 🔥 핵심
+  let specs = GAME_MAPPING[key] || autoGenerateMapping(parts);
+
+  let allExempt={1:new Set(),2:new Set(),3:new Set()};
+  let html="<div class='card'><h3>🎯 게임 결과</h3>";
+
+  specs.forEach((spec,i)=>{
+    let on=[],off=[],exempt={};
+
+    for(let t=1;t<=3;t++){
+      let need=spec[t-1]*2;
+      let ex=pickExempt(parts[t],need,allExempt[t]);
+      exempt[t]=ex;
+
+      let pool=parts[t].filter(p=>!ex.includes(p));
+      shuffle(pool);
+
+      on=on.concat(pool.slice(0,spec[t-1]));
+      off=off.concat(pool.slice(spec[t-1],spec[t-1]*2));
+
+      ex.forEach(x=>allExempt[t].add(x));
+    }
+
+    html+=`
+    <div class="card">
+    <h4>Game ${i+1}</h4>
+
+    <div class="team-box">
+    <div class="team on"><b>🔵 ON</b><br>${on.map(p=>`<span class="player">${p}</span>`).join("")}</div>
+    <div class="team off"><b>🔴 OFF</b><br>${off.map(p=>`<span class="player">${p}</span>`).join("")}</div>
+    </div>
+
+    <div class="exempt-box">
+    ${Object.entries(exempt).map(([t,v]) =>
+      `${t}티어: ${v.map(p=>`<span class="player">${p}</span>`).join("")}`
+    ).join("<br>")}
+    </div>
+
+    </div>`;
+  });
+
+  html+="</div>";
+  document.getElementById("result").innerHTML=html;
+}
+
+function resetAll(){
+  document.querySelectorAll("input[type=checkbox]").forEach(c=>c.checked=false);
+  document.getElementById("result").innerHTML="";
+}
+</script>
+
+</body>
+</html>
