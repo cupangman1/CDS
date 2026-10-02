@@ -1,245 +1,570 @@
+```html
 <!doctype html>
-<html>
+<html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>롤 팀 랜덤 분배기</title>
 
 <style>
-:root { --result-font: 16px; }
+:root {
+  --result-font: 11px;
+  --primary-color: #2563eb;
+  --danger-color: #ef4444;
+  --blue-team: #1d4ed8;
+  --red-team: #b91c1c;
+}
 
-body { font-family: Arial; background:#f5f6fa; padding:20px; }
-.container { max-width:900px; margin:auto; }
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+  margin: 0;
+  padding: 16px 8px;
+}
+
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+}
 
 .card {
-  background:white;
-  padding:20px;
-  margin-bottom:20px;
-  border-radius:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  background: #ffffff;
+  padding: 16px 12px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
 }
 
-table { width:100%; border-collapse:collapse; }
-th, td { border:1px solid #ddd; padding:8px; text-align:center; }
-th { background:#eee; }
+.card-title {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-.absent-table td { font-size:18px; }
-.absent-table input { transform:scale(1.5); }
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 10px 14px;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* 행 전체 클릭 가능 인터랙션 및 선택 하이라이트 */
+.absent-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+
+.absent-table tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+.absent-table tbody tr.selected {
+  background-color: #fee2e2 !important;
+  color: #991b1b;
+  font-weight: 600;
+}
+
+.absent-table tbody tr.selected .player-name {
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.absent-table tbody tr.selected .status-badge {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  background-color: #e2e8f0;
+  color: #475569;
+  transition: background-color 0.15s;
+}
+
+.absent-table input[type="checkbox"] {
+  transform: scale(1.35);
+  cursor: pointer;
+  accent-color: #ef4444;
+}
+
+.tier-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.tier-1 { background-color: #fef3c7; color: #b45309; }
+.tier-2 { background-color: #e0e7ff; color: #3730a3; }
+.tier-3 { background-color: #dcfce7; color: #15803d; }
+
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.font-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+}
 
 button {
-  padding:10px 16px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  margin-right:10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.05s;
 }
 
-.generate { background:#4CAF50; color:white; }
-.reset { background:#e74c3c; color:white; }
+button:active {
+  transform: scale(0.98);
+}
 
-.team-box { display:flex; gap:15px; }
+.btn-generate {
+  background: var(--primary-color);
+  color: #ffffff;
+}
+.btn-generate:hover {
+  background: #1d4ed8;
+}
 
-.team { flex:1; padding:10px; border-radius:10px; }
-.team.on { background:#e3f2fd; }
-.team.off { background:#fdecea; }
+.btn-reset {
+  background: #e2e8f0;
+  color: #475569;
+}
+.btn-reset:hover {
+  background: #cbd5e1;
+}
+
+/* 결과 출력 카드 */
+.game-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 8px;
+  margin-top: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.game-title {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* 스크롤 제거 및 100% 모바일 너비 맞춤 */
+.team-scroll-container {
+  width: 100%;
+  overflow: visible;
+}
+
+/* ON팀과 OFF팀을 가로 스크롤 없이 화면에 50:50 배치 */
+.team-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+}
+
+.team {
+  padding: 8px 4px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  min-width: 0;
+}
+
+.team.on {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+.team.off {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.team-header {
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.team.on .team-header { color: var(--blue-team); }
+.team.off .team-header { color: var(--red-team); }
+
+/* 5명을 가로 한 줄에 촘촘하게 배치 (축소 허용) */
+.player-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+  width: 100%;
+}
 
 .player {
-  display:inline-block;
-  background:#ddd;
-  padding:5px 8px;
-  margin:4px;
-  border-radius:8px;
+  background: #ffffff;
+  padding: 5px 1px;
+  border-radius: 5px;
   font-size: var(--result-font);
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  letter-spacing: -0.6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  min-width: 0;
 }
 
 .exempt-box {
-  margin-top:10px;
-  padding:10px;
-  background:#f9f9f9;
-  border-radius:10px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: #f8fafc;
+  border-radius: 8px;
   font-size: var(--result-font);
+  border: 1px dashed #cbd5e1;
+}
+
+.exempt-title {
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+}
+
+.exempt-tier-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.exempt-tier-badge {
+  font-weight: 700;
+  min-width: 42px;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.exempt-player-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.notice-box {
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 8px;
+  margin-top: 14px;
+  display: none;
+  font-size: 0.95rem;
 }
 </style>
 </head>
 
 <body>
 <div class="container">
+  <div class="card">
+    <div class="card-title">
+      <span>👥 참석자 명단 및 불참/제외 선택</span>
+      <span style="font-size: 0.85rem; font-weight: normal; color: #64748b;">(행을 클릭하여 제외 설정)</span>
+    </div>
 
-<div class="card">
-<h3>결석자 선택</h3>
-<table class="absent-table" id="playerTable"></table>
+    <table class="absent-table">
+      <thead>
+        <tr>
+          <th>이름</th>
+          <th>티어</th>
+          <th>상태</th>
+          <th>제외</th>
+        </tr>
+      </thead>
+      <tbody id="playerTable"></tbody>
+    </table>
 
-<br>
+    <div id="noticeBox" class="notice-box"></div>
 
-<div>
-결과 글자 크기:
-<input type="range" min="12" max="30" value="16" oninput="changeFont(this.value)">
-<span id="fontVal">16</span>px
-</div>
+    <div class="controls-row">
+      <div class="font-control">
+        <span>결과 폰트:</span>
+        <input type="range" min="9" max="15" value="11" oninput="changeFont(this.value)">
+        <span id="fontVal" style="font-weight: bold; min-width: 28px;">11px</span>
+      </div>
 
-<br>
+      <div class="btn-group">
+        <button class="btn-reset" onclick="resetAll()">초기화</button>
+        <button class="btn-generate" onclick="generate()">팀 분배 생성</button>
+      </div>
+    </div>
+  </div>
 
-<button class="generate" onclick="generate()">생성</button>
-<button class="reset" onclick="resetAll()">초기화</button>
-
-</div>
-
-<div id="result"></div>
-
+  <div id="result"></div>
 </div>
 
 <script>
-// =========================
-// 초기 데이터
-// =========================
+// 3티어에 '동수' 포함 총 16명
 const INITIAL_TIERS = {
-  1: ["준식","세준","형욱","재현","수현"],
-  2: ["경식","종화","서영","중서","민우"],
-  3: ["동훈","찬규","정섭","덕명","요성"]
+  1: ["준식", "세준", "형욱", "재현", "수현"],
+  2: ["경식", "종화", "서영", "중서", "민우"],
+  3: ["동훈", "찬규", "정섭", "덕명", "요성", "동수"]
 };
 
-// =========================
-// UI
-// =========================
-function buildTable(){
-  let html="<tr><th>이름</th><th>티어</th><th>제외</th></tr>";
-  for(let t in INITIAL_TIERS){
-    INITIAL_TIERS[t].forEach(name=>{
-      html+=`<tr>
-      <td>${name}</td>
-      <td>${t}</td>
-      <td><input type="checkbox" value="${name}"></td>
+function buildTable() {
+  let html = "";
+  for (let t in INITIAL_TIERS) {
+    INITIAL_TIERS[t].forEach(name => {
+      html += `
+      <tr class="player-row" onclick="handleRowClick(this, event)">
+        <td><span class="player-name">${name}</span></td>
+        <td><span class="tier-tag tier-${t}">${t}티어</span></td>
+        <td><span class="status-badge">참석</span></td>
+        <td>
+          <input type="checkbox" value="${name}" onclick="handleCheckboxClick(this, event)">
+        </td>
       </tr>`;
     });
   }
-  document.getElementById("playerTable").innerHTML=html;
+  document.getElementById("playerTable").innerHTML = html;
 }
 buildTable();
 
-function changeFont(size){
-  document.documentElement.style.setProperty('--result-font', size+'px');
-  document.getElementById("fontVal").innerText=size;
+function handleRowClick(row, event) {
+  const checkbox = row.querySelector("input[type=checkbox]");
+  if (!checkbox) return;
+  checkbox.checked = !checkbox.checked;
+  syncRowVisual(row, checkbox.checked);
 }
 
-// =========================
-// 🔥 자동 매핑 생성
-// =========================
-function autoGenerateMapping(parts){
+function handleCheckboxClick(checkbox, event) {
+  event.stopPropagation();
+  const row = checkbox.closest("tr");
+  if (row) {
+    syncRowVisual(row, checkbox.checked);
+  }
+}
+
+function syncRowVisual(row, isChecked) {
+  const badge = row.querySelector(".status-badge");
+  if (isChecked) {
+    row.classList.add("selected");
+    if (badge) badge.innerText = "제외됨";
+  } else {
+    row.classList.remove("selected");
+    if (badge) badge.innerText = "참석";
+  }
+}
+
+function changeFont(size) {
+  document.documentElement.style.setProperty('--result-font', size + 'px');
+  document.getElementById("fontVal").innerText = size + 'px';
+}
+
+function showNotice(msg) {
+  const box = document.getElementById("noticeBox");
+  box.innerText = msg;
+  box.style.display = "block";
+}
+
+function hideNotice() {
+  const box = document.getElementById("noticeBox");
+  box.style.display = "none";
+}
+
+function shuffle(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function autoGenerateMapping(parts) {
   let t1 = parts[1].length;
   let t2 = parts[2].length;
   let t3 = parts[3].length;
+  let tiers = [t1, t2, t3];
 
-  let tiers = [t1,t2,t3];
-
-  // 2명 있는 티어 → 강제 분배
-  if(tiers.includes(2)){
+  if (tiers.includes(2)) {
     return [
-      [2,2,1],
-      [2,2,1],
-      [2,2,1]
+      [2, 2, 1],
+      [2, 2, 1],
+      [2, 2, 1]
     ];
   }
 
-  // 3명 티어 → 1명씩만
-  if(tiers.includes(3)){
+  if (tiers.includes(3)) {
     return [
-      tiers.map(t => t >= 4 ? 2 : 1),
-      tiers.map(t => t >= 4 ? 2 : 1),
-      tiers.map(t => t >= 4 ? 2 : 1)
+      tiers.map(t => (t >= 4 ? 2 : 1)),
+      tiers.map(t => (t >= 4 ? 2 : 1)),
+      tiers.map(t => (t >= 4 ? 2 : 1))
     ];
   }
 
-  // 기본 균형
   return [
-    [1,2,2],
-    [2,1,2],
-    [2,2,1]
+    [1, 2, 2],
+    [2, 1, 2],
+    [2, 2, 1]
   ];
 }
 
-// =========================
-// 로직
-// =========================
-function shuffle(arr){
-  return arr.sort(()=>Math.random()-0.5);
-}
-
-function pickExempt(players, needed, used){
+function pickExempt(players, needed, used) {
   let cnt = players.length - needed;
-  if(cnt<=0) return [];
+  if (cnt <= 0) return [];
 
-  let pool = shuffle([...players]);
-  let never = pool.filter(p=>!used.has(p));
+  let pool = shuffle(players);
+  let never = pool.filter(p => !used.has(p));
 
-  if(never.length>=cnt) return shuffle(never).slice(0,cnt);
+  if (never.length >= cnt) {
+    return shuffle(never).slice(0, cnt);
+  }
 
-  let chosen=[...never];
-  let remain = pool.filter(p=>!chosen.includes(p));
-  return chosen.concat(shuffle(remain).slice(0,cnt-chosen.length));
+  let chosen = [...never];
+  let remain = pool.filter(p => !chosen.includes(p));
+  return chosen.concat(shuffle(remain).slice(0, cnt - chosen.length));
 }
 
-function generate(){
-  let absent=new Set();
-  document.querySelectorAll("input[type=checkbox]").forEach(c=>{
-    if(c.checked) absent.add(c.value);
+function generate() {
+  hideNotice();
+  let absent = new Set();
+  document.querySelectorAll("input[type=checkbox]").forEach(c => {
+    if (c.checked) absent.add(c.value);
   });
 
-  let parts={1:[],2:[],3:[]};
+  let parts = { 1: [], 2: [], 3: [] };
+  let totalAttending = 0;
 
-  for(let t in INITIAL_TIERS){
-    INITIAL_TIERS[t].forEach(p=>{
-      if(!absent.has(p)) parts[t].push(p);
+  for (let t in INITIAL_TIERS) {
+    INITIAL_TIERS[t].forEach(p => {
+      if (!absent.has(p)) {
+        parts[t].push(p);
+        totalAttending++;
+      }
     });
   }
 
+  if (totalAttending < 10) {
+    showNotice(`현재 참석 인원이 ${totalAttending}명입니다. 최소 10명 이상이어야 경기를 생성할 수 있습니다.`);
+    return;
+  }
+
   let specs = autoGenerateMapping(parts);
+  let allExempt = { 1: new Set(), 2: new Set(), 3: new Set() };
+  let html = "<div class='card'><h3 style='margin-top:0;'>🎯 3개 게임 팀 분배 결과</h3>";
 
-  let allExempt={1:new Set(),2:new Set(),3:new Set()};
-  let html="<div class='card'><h3>🎯 게임 결과</h3>";
+  specs.forEach((spec, i) => {
+    let on = [], off = [], exempt = {};
 
-  specs.forEach((spec,i)=>{
-    let on=[],off=[],exempt={};
+    for (let t = 1; t <= 3; t++) {
+      let need = spec[t - 1] * 2;
+      let ex = pickExempt(parts[t], need, allExempt[t]);
+      exempt[t] = ex;
 
-    for(let t=1;t<=3;t++){
-      let need=spec[t-1]*2;
-      let ex=pickExempt(parts[t],need,allExempt[t]);
-      exempt[t]=ex;
+      let pool = parts[t].filter(p => !ex.includes(p));
+      pool = shuffle(pool);
 
-      let pool=parts[t].filter(p=>!ex.includes(p));
-      shuffle(pool);
+      on = on.concat(pool.slice(0, spec[t - 1]));
+      off = off.concat(pool.slice(spec[t - 1], spec[t - 1] * 2));
 
-      on=on.concat(pool.slice(0,spec[t-1]));
-      off=off.concat(pool.slice(spec[t-1],spec[t-1]*2));
-
-      ex.forEach(x=>allExempt[t].add(x));
+      ex.forEach(x => allExempt[t].add(x));
     }
 
-    html+=`
-    <div class="card">
-    <h4>Game ${i+1}</h4>
+    html += `
+    <div class="game-card">
+      <div class="game-title">⚔️️ Game ${i + 1}</div>
 
-    <div class="team-box">
-    <div class="team on"><b>🔵 ON</b><br>${on.map(p=>`<span class="player">${p}</span>`).join("")}</div>
-    <div class="team off"><b>🔴 OFF</b><br>${off.map(p=>`<span class="player">${p}</span>`).join("")}</div>
-    </div>
+      <div class="team-scroll-container">
+        <div class="team-box">
+          <div class="team on">
+            <div class="team-header">🔵 ON 팀</div>
+            <div class="player-list">
+              ${on.map(p => `<span class="player">${p}</span>`).join("")}
+            </div>
+          </div>
+          <div class="team off">
+            <div class="team-header">🔴 OFF 팀</div>
+            <div class="player-list">
+              ${off.map(p => `<span class="player">${p}</span>`).join("")}
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div class="exempt-box">
-    ${Object.entries(exempt).map(([t,v]) =>
-      `${t}티어: ${v.map(p=>`<span class="player">${p}</span>`).join("")}`
-    ).join("<br>")}
-    </div>
-
+      <div class="exempt-box">
+        <div class="exempt-title">☕ 휴식 인원 (Exempt)</div>
+        ${Object.entries(exempt).map(([t, v]) => `
+          <div class="exempt-tier-row">
+            <span class="exempt-tier-badge">${t}티어:</span>
+            <div class="exempt-player-list">
+              ${v.length ? v.map(p => `<span class="player" style="padding: 3px 6px;">${p}</span>`).join("") : "<span style='color:#94a3b8; font-size:10px;'>없음</span>"}
+            </div>
+          </div>
+        `).join("")}
+      </div>
     </div>`;
   });
 
-  html+="</div>";
-  document.getElementById("result").innerHTML=html;
+  html += "</div>";
+  document.getElementById("result").innerHTML = html;
 }
 
-function resetAll(){
-  document.querySelectorAll("input[type=checkbox]").forEach(c=>c.checked=false);
-  document.getElementById("result").innerHTML="";
+function resetAll() {
+  hideNotice();
+  document.querySelectorAll("input[type=checkbox]").forEach(c => (c.checked = false));
+  document.querySelectorAll("#playerTable tr.player-row").forEach(r => syncRowVisual(r, false));
+  document.getElementById("result").innerHTML = "";
 }
 </script>
-
 </body>
 </html>
+```
