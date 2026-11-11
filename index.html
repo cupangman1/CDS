@@ -41,7 +41,7 @@ body {
 .card-title {
   margin-top: 0;
   margin-bottom: 16px;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -74,7 +74,6 @@ tr:last-child td {
   border-bottom: none;
 }
 
-/* 행 전체 클릭 가능 인터랙션 및 선택 하이라이트 */
 .absent-table tbody tr {
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -119,14 +118,79 @@ tr:last-child td {
 
 .tier-tag {
   display: inline-block;
-  padding: 2px 10px;
+  padding: 2px 8px;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 .tier-1 { background-color: #fef3c7; color: #b45309; }
 .tier-2 { background-color: #e0e7ff; color: #3730a3; }
 .tier-3 { background-color: #dcfce7; color: #15803d; }
+
+/* 면제 우선순위 모드 스타일 */
+.mode-section {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.mode-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mode-btn-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+@media (min-width: 520px) {
+  .mode-btn-group {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.mode-btn {
+  padding: 9px 4px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.mode-btn.active {
+  background: var(--primary-color);
+  color: #ffffff;
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.mode-desc-badge {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: #0369a1;
+  background: #e0f2fe;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-align: center;
+}
 
 .controls-row {
   display: flex;
@@ -134,8 +198,8 @@ tr:last-child td {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 18px;
-  padding-top: 16px;
+  margin-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid #f1f5f9;
 }
 
@@ -153,7 +217,7 @@ tr:last-child td {
 }
 
 button {
-  padding: 10px 20px;
+  padding: 10px 18px;
   border: none;
   border-radius: 8px;
   font-size: 0.95rem;
@@ -182,7 +246,6 @@ button:active {
   background: #cbd5e1;
 }
 
-/* 결과 출력 카드 */
 .game-card {
   background: #ffffff;
   border-radius: 10px;
@@ -196,15 +259,25 @@ button:active {
   font-size: 1rem;
   font-weight: 700;
   color: #0f172a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* 스크롤 제거 및 100% 모바일 너비 맞춤 */
+.tier-balance-indicator {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
 .team-scroll-container {
   width: 100%;
   overflow: visible;
 }
 
-/* ON팀과 OFF팀을 가로 스크롤 없이 화면에 50:50 배치 */
 .team-box {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -241,7 +314,6 @@ button:active {
 .team.on .team-header { color: var(--blue-team); }
 .team.off .team-header { color: var(--red-team); }
 
-/* 5명을 가로 한 줄에 촘촘하게 배치 (축소 허용) */
 .player-list {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -299,6 +371,85 @@ button:active {
   gap: 4px;
 }
 
+.summary-card {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: #166534;
+}
+
+.summary-card b {
+  color: #15803d;
+}
+
+/* 통계 표 */
+.stat-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 10px;
+  margin-top: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.stat-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.stat-table th, .stat-table td {
+  padding: 7px 4px;
+  text-align: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.stat-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+}
+
+.stat-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.badge-count {
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  min-width: 28px;
+}
+
+.badge-play { background: #dbeafe; color: #1e40af; }
+.badge-rest { background: #fef3c7; color: #b45309; }
+
+.mini-game-tag {
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin: 0 1px;
+  display: inline-block;
+  font-weight: 600;
+}
+.mini-tag-on { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.mini-tag-off { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+.mini-tag-rest { background: #f8fafc; color: #64748b; border: 1px solid #cbd5e1; }
+
 .notice-box {
   padding: 12px 16px;
   background: #fef2f2;
@@ -317,7 +468,7 @@ button:active {
   <div class="card">
     <div class="card-title">
       <span>👥 참석자 명단 및 불참/제외 선택</span>
-      <span style="font-size: 0.85rem; font-weight: normal; color: #64748b;">(행을 클릭하여 제외 설정)</span>
+      <span style="font-size: 0.85rem; font-weight: normal; color: #64748b;">(행 클릭하여 제외)</span>
     </div>
 
     <table class="absent-table">
@@ -331,6 +482,31 @@ button:active {
       </thead>
       <tbody id="playerTable"></tbody>
     </table>
+
+    <!-- 면제 우선순위 모드 선택기 -->
+    <div class="mode-section">
+      <div class="mode-title">
+        <span>🎯 면제(휴식) 우선순위 모드</span>
+        <span id="currentModeLabel" style="font-weight: 600; color: #2563eb;">⚖️ 균등 분배</span>
+      </div>
+      <div class="mode-btn-group">
+        <button type="button" class="mode-btn active" data-mode="balanced" onclick="selectMode('balanced')">
+          ⚖️ 균등 분배
+        </button>
+        <button type="button" class="mode-btn" data-mode="tier1_rest" onclick="selectMode('tier1_rest')">
+          👑 1티어 면제 다수
+        </button>
+        <button type="button" class="mode-btn" data-mode="tier2_rest" onclick="selectMode('tier2_rest')">
+          🥈 2티어 면제 다수
+        </button>
+        <button type="button" class="mode-btn" data-mode="tier3_rest" onclick="selectMode('tier3_rest')">
+          🥉 3티어 면제 다수
+        </button>
+      </div>
+      <div class="mode-desc-badge">
+        ✨ 전원 최소 1회 이상 휴식 보장 (어떤 경우에도 3게임 연속 출전 금지 / 최대 2게임 출전)
+      </div>
+    </div>
 
     <div id="noticeBox" class="notice-box"></div>
 
@@ -352,12 +528,28 @@ button:active {
 </div>
 
 <script>
-// 3티어에 '동수' 포함 총 16명
 const INITIAL_TIERS = {
   1: ["준식", "세준", "형욱", "재현", "수현"],
   2: ["경식", "종화", "서영", "중서", "민우"],
   3: ["동훈", "찬규", "정섭", "덕명", "요성", "동수"]
 };
+
+let currentMode = 'balanced';
+
+const MODE_LABELS = {
+  'balanced': '⚖️ 균등 분배 (전원 최대 2게임 출전)',
+  'tier1_rest': '👑 1티어 면제 다수 (1티어 우선 휴식)',
+  'tier2_rest': '🥈 2티어 면제 다수 (2티어 우선 휴식)',
+  'tier3_rest': '🥉 3티어 면제 다수 (3티어 우선 휴식)'
+};
+
+function selectMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  document.getElementById('currentModeLabel').innerText = MODE_LABELS[mode] || mode;
+}
 
 function buildTable() {
   let html = "";
@@ -429,49 +621,144 @@ function shuffle(arr) {
   return copy;
 }
 
-function autoGenerateMapping(parts) {
-  let t1 = parts[1].length;
-  let t2 = parts[2].length;
-  let t3 = parts[3].length;
-  let tiers = [t1, t2, t3];
-
-  if (tiers.includes(2)) {
-    return [
-      [2, 2, 1],
-      [2, 2, 1],
-      [2, 2, 1]
-    ];
-  }
-
-  if (tiers.includes(3)) {
-    return [
-      tiers.map(t => (t >= 4 ? 2 : 1)),
-      tiers.map(t => (t >= 4 ? 2 : 1)),
-      tiers.map(t => (t >= 4 ? 2 : 1))
-    ];
-  }
-
-  return [
-    [1, 2, 2],
-    [2, 1, 2],
-    [2, 2, 1]
+// 🎯 양 팀 티어 100% 동일(대칭) 유지 + "최대 2게임만 출전(3게임 출전 원천 차단)" 최적 스케줄러
+function findOptimalFairSymmetricSchedule(parts, mode) {
+  let N = [parts[1].length, parts[2].length, parts[3].length];
+  let maxT = [
+    Math.floor(N[0] / 2),
+    Math.floor(N[1] / 2),
+    Math.floor(N[2] / 2)
   ];
+
+  let valids = [];
+  for (let s1 = 0; s1 <= maxT[0]; s1++) {
+    for (let s2 = 0; s2 <= maxT[1]; s2++) {
+      let s3 = 5 - s1 - s2;
+      if (s3 >= 0 && s3 <= maxT[2]) {
+        valids.push([s1, s2, s3]);
+      }
+    }
+  }
+
+  if (valids.length === 0) return null;
+
+  let bestSchedule = null;
+  let bestScore = Infinity;
+
+  for (let i = 0; i < valids.length; i++) {
+    for (let j = 0; j < valids.length; j++) {
+      for (let k = 0; k < valids.length; k++) {
+        let triple = [valids[i], valids[j], valids[k]];
+
+        // 각 티어별 3게임 총 휴식 횟수
+        let tierTotalRests = [0, 1, 2].map(t => {
+          let playedSlots = 2 * (triple[0][t] + triple[1][t] + triple[2][t]);
+          return 3 * N[t] - playedSlots;
+        });
+
+        // 각 티어별 3게임 팀당 출전 슬롯 수 합계 (0~3게임)
+        let totalPlayedSlots = [0, 1, 2].map(t => {
+          return triple[0][t] + triple[1][t] + triple[2][t];
+        });
+
+        let allPlayerRests = [];
+        let tierMaxDiff = 0;
+
+        for (let t = 0; t < 3; t++) {
+          let count = N[t];
+          let totalR = tierTotalRests[t];
+          let base = Math.floor(totalR / count);
+          let rem = totalR % count;
+          let tierRests = [];
+          for (let p = 0; p < count; p++) {
+            let r = (p < rem ? base + 1 : base);
+            allPlayerRests.push(r);
+            tierRests.push(r);
+          }
+          let diffInTier = Math.max(...tierRests) - Math.min(...tierRests);
+          if (diffInTier > tierMaxDiff) tierMaxDiff = diffInTier;
+        }
+
+        let maxR = Math.max(...allPlayerRests);
+        let minR = Math.min(...allPlayerRests);
+        let overallRestDiff = maxR - minR;
+
+        let score = 0;
+
+        // 🚨 [절대 규칙 1]: 3게임 출전 원천 차단! (휴식 0회인 사람이 1명이라도 있으면 초고액 페널티 부여)
+        // 15인 이상이면 무조건 전원 최소 1회 이상 휴식(최대 2게임 출전)이 보장됩니다.
+        let threeGamePlayers = allPlayerRests.filter(r => r === 0).length;
+        score += threeGamePlayers * 1000000;
+
+        // 🚨 [절대 규칙 2]: 티어 내부 공정성 (같은 티어 선수들끼리 휴식 횟수 편차 1 초과 방지)
+        score += tierMaxDiff * 20000;
+
+        // 🎯 모드별 최적화 목적함수
+        if (mode === 'balanced') {
+          score += overallRestDiff * 1500;
+          if (overallRestDiff > 1) score += 5000;
+
+          // 게임별 티어 편차 완화
+          for (let g = 0; g < 3; g++) {
+            let gameEx = [
+              N[0] - 2 * triple[g][0],
+              N[1] - 2 * triple[g][1],
+              N[2] - 2 * triple[g][2]
+            ];
+            let maxEx = Math.max(...gameEx);
+            let minEx = Math.min(...gameEx);
+            score += (maxEx - minEx) * 15;
+          }
+        } 
+        else if (mode === 'tier1_rest') {
+          // 👑 1티어 면제 다수: 1티어 출전 슬롯이 적을수록(휴식 많을수록) 점수 우대!
+          // 단, 3게임 출전자 방지 페널티(+1,000,000)가 있어 2티어나 3티어에서 3게임 뛰는 사람은 절대 발생하지 않습니다.
+          score += totalPlayedSlots[0] * 3000;
+        } 
+        else if (mode === 'tier2_rest') {
+          // 🥈 2티어 면제 다수: 2티어 출전 슬롯이 적을수록(휴식 많을수록) 점수 우대!
+          // 마찬가지로 1티어나 3티어에서 3게임 뛰는 인원은 원천 차단됩니다.
+          score += totalPlayedSlots[1] * 3000;
+        }
+        else if (mode === 'tier3_rest') {
+          // 🥉 3티어 면제 다수: 3티어 출전 슬롯이 적을수록(휴식 많을수록) 점수 우대!
+          // 마찬가지로 1티어나 2티어가 3게임 뛰게 되는 조합은 원천 배제됩니다.
+          score += totalPlayedSlots[2] * 3000;
+        }
+
+        // 3게임 연속 동일 구성 다양성 보정
+        let isAllSame = (
+          triple[0][0] === triple[1][0] && triple[0][1] === triple[1][1] &&
+          triple[1][0] === triple[2][0] && triple[1][1] === triple[2][1]
+        );
+        if (isAllSame && mode === 'balanced') score += 20;
+
+        let totalScore = score + Math.random() * 5;
+
+        if (totalScore < bestScore) {
+          bestScore = totalScore;
+          bestSchedule = triple;
+        }
+      }
+    }
+  }
+
+  return bestSchedule;
 }
 
-function pickExempt(players, needed, used) {
-  let cnt = players.length - needed;
-  if (cnt <= 0) return [];
+// 누적 휴식 횟수가 적은 사람(0회 쉰 사람)을 1순위로 선발하여 전원 최소 1회 휴식 보장
+function pickFairExempt(players, neededCount, restCounts) {
+  if (neededCount <= 0) return [];
 
   let pool = shuffle(players);
-  let never = pool.filter(p => !used.has(p));
+  pool.sort((a, b) => (restCounts[a] || 0) - (restCounts[b] || 0));
 
-  if (never.length >= cnt) {
-    return shuffle(never).slice(0, cnt);
-  }
+  let chosen = pool.slice(0, neededCount);
+  chosen.forEach(p => {
+    restCounts[p] = (restCounts[p] || 0) + 1;
+  });
 
-  let chosen = [...never];
-  let remain = pool.filter(p => !chosen.includes(p));
-  return chosen.concat(shuffle(remain).slice(0, cnt - chosen.length));
+  return chosen;
 }
 
 function generate() {
@@ -498,30 +785,93 @@ function generate() {
     return;
   }
 
-  let specs = autoGenerateMapping(parts);
-  let allExempt = { 1: new Set(), 2: new Set(), 3: new Set() };
-  let html = "<div class='card'><h3 style='margin-top:0;'>🎯 3개 게임 팀 분배 결과</h3>";
+  let schedule = findOptimalFairSymmetricSchedule(parts, currentMode);
 
-  specs.forEach((spec, i) => {
+  if (!schedule) {
+    showNotice("현재 인원 구성으로는 양 팀의 티어를 100% 대칭으로 맞추기 어렵습니다.");
+    return;
+  }
+
+  // 개인별 상세 통계 트래커 초기화
+  let playerStats = {};
+  let restCounts = {};
+  for (let t in parts) {
+    parts[t].forEach(p => {
+      restCounts[p] = 0;
+      playerStats[p] = {
+        name: p,
+        tier: t,
+        playCount: 0,
+        restCount: 0,
+        gameLogs: []
+      };
+    });
+  }
+
+  let html = `<div class='card'><h3 style='margin-top:0; display:flex; justify-content:space-between; align-items:center;'>
+    <span>🎯 3개 게임 팀 분배 결과</span>
+    <span style="font-size:0.8rem; font-weight:normal; color:#2563eb;">${MODE_LABELS[currentMode]}</span>
+  </h3>`;
+
+  schedule.forEach((spec, i) => {
     let on = [], off = [], exempt = {};
 
     for (let t = 1; t <= 3; t++) {
-      let need = spec[t - 1] * 2;
-      let ex = pickExempt(parts[t], need, allExempt[t]);
+      let teamSlot = spec[t - 1];
+      let totalNeededForGame = teamSlot * 2;
+      let exemptCount = parts[t].length - totalNeededForGame;
+
+      // 1. 공정 휴식자 선발 (0회 휴식자 최우선 선발)
+      let ex = pickFairExempt(parts[t], exemptCount, restCounts);
       exempt[t] = ex;
 
-      let pool = parts[t].filter(p => !ex.includes(p));
-      pool = shuffle(pool);
+      ex.forEach(p => {
+        playerStats[p].restCount++;
+        playerStats[p].gameLogs.push({ game: i + 1, role: 'REST' });
+      });
 
-      on = on.concat(pool.slice(0, spec[t - 1]));
-      off = off.concat(pool.slice(spec[t - 1], spec[t - 1] * 2));
+      // 2. 출전 인원 셔플 후 ON/OFF 배분
+      let playingPool = parts[t].filter(p => !ex.includes(p));
+      playingPool = shuffle(playingPool);
 
-      ex.forEach(x => allExempt[t].add(x));
+      let teamOnPlayers = playingPool.slice(0, teamSlot);
+      let teamOffPlayers = playingPool.slice(teamSlot, totalNeededForGame);
+
+      teamOnPlayers.forEach(p => {
+        playerStats[p].playCount++;
+        playerStats[p].gameLogs.push({ game: i + 1, role: 'ON' });
+      });
+
+      teamOffPlayers.forEach(p => {
+        playerStats[p].playCount++;
+        playerStats[p].gameLogs.push({ game: i + 1, role: 'OFF' });
+      });
+
+      on = on.concat(teamOnPlayers);
+      off = off.concat(teamOffPlayers);
     }
+
+    // 진영 셔플 (블루/레드 쏠림 완화)
+    if (Math.random() > 0.5) {
+      let temp = on; on = off; off = temp;
+      on.forEach(p => {
+        let last = playerStats[p].gameLogs[playerStats[p].gameLogs.length - 1];
+        if (last && last.game === i + 1) last.role = 'ON';
+      });
+      off.forEach(p => {
+        let last = playerStats[p].gameLogs[playerStats[p].gameLogs.length - 1];
+        if (last && last.game === i + 1) last.role = 'OFF';
+      });
+    }
+
+    let specText = `1티어 ${spec[0]}명 / 2티어 ${spec[1]}명 / 3티어 ${spec[2]}명`;
 
     html += `
     <div class="game-card">
-      <div class="game-title">⚔️️ Game ${i + 1}</div>
+      <div class="game-title">
+        <span>⚔ Game ${i + 1}</span>
+        <span class="tier-balance-indicator">양팀 동일: ${specText}</span>
+      </div>
 
       <div class="team-scroll-container">
         <div class="team-box">
@@ -554,7 +904,66 @@ function generate() {
     </div>`;
   });
 
-  html += "</div>";
+  // 요약 카드
+  let playCountsSummary = {};
+  Object.values(playerStats).forEach(s => {
+    playCountsSummary[s.playCount] = (playCountsSummary[s.playCount] || 0) + 1;
+  });
+  let summaryText = Object.entries(playCountsSummary)
+    .sort((a, b) => b[0] - a[0])
+    .map(([cnt, players]) => `<b>${cnt}게임 출전:</b> ${players}명`)
+    .join(" / ");
+
+  html += `
+  <div class="summary-card">
+    📊 <b>출전 요약:</b> ${summaryText} (총 ${totalAttending}명 참석 / <b>3게임 연속 출전자: 0명</b>)
+  </div>`;
+
+  // 📋 인원별 게임 수 및 면제 수 상세 통계표 생성
+  let sortedPlayers = Object.values(playerStats).sort((a, b) => {
+    if (a.tier !== b.tier) return a.tier - b.tier;
+    return b.playCount - a.playCount;
+  });
+
+  html += `
+  <div class="stat-card">
+    <div class="stat-title">
+      <span>📋 인원별 게임 수 / 면제(휴식) 통계표</span>
+      <span style="font-size: 0.75rem; color: #64748b; font-weight: normal;">(최대 2게임 출전)</span>
+    </div>
+
+    <table class="stat-table">
+      <thead>
+        <tr>
+          <th>이름</th>
+          <th>티어</th>
+          <th>출전</th>
+          <th>면제</th>
+          <th>게임별 상태</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${sortedPlayers.map(p => {
+          let logBadges = p.gameLogs.map(g => {
+            if (g.role === 'ON') return `<span class="mini-game-tag mini-tag-on">1팀</span>`;
+            if (g.role === 'OFF') return `<span class="mini-game-tag mini-tag-off">2팀</span>`;
+            return `<span class="mini-game-tag mini-tag-rest">휴식</span>`;
+          }).join("");
+
+          return `
+          <tr>
+            <td><b>${p.name}</b></td>
+            <td><span class="tier-tag tier-${p.tier}">${p.tier}티어</span></td>
+            <td><span class="badge-count badge-play">${p.playCount}회</span></td>
+            <td><span class="badge-count badge-rest">${p.restCount}회</span></td>
+            <td>${logBadges}</td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>
+  </div>
+  </div>`;
+
   document.getElementById("result").innerHTML = html;
 }
 
